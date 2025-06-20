@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.WuziRukuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yuangong_id as yuangongId
+        ,a.wuzi_id as wuziId
+        ,a.wuzi_ruku_uuid_number as wuziRukuUuidNumber
+        ,a.wuzi_ruku_number as wuziRukuNumber
+        ,a.ruku_time as rukuTime
+        ,a.wuzi_ruku_content as wuziRukuContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.WuziRukuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,wuzi.wuzi_name as wuziName
+        ,wuzi.wuzi_uuid_number as wuziUuidNumber
+        ,wuzi.wuzi_photo as wuziPhoto
+        ,wuzi.wuzi_cangku as wuziCangku
+        ,wuzi.wuzi_address as wuziAddress
+        ,wuzi.wuzi_types as wuziTypes
+        ,wuzi.wuzi_kucun_number as wuziKucunNumber
+        ,wuzi.wuzi_clicknum as wuziClicknum
+        ,wuzi.wuzi_content as wuziContent
+        ,wuzi.shangxia_types as shangxiaTypes
+        ,wuzi.wuzi_delete as wuziDelete
+        ,yuangong.yuangong_uuid_number as yuangongUuidNumber
+        ,yuangong.yuangong_name as yuangongName
+        ,yuangong.yuangong_phone as yuangongPhone
+        ,yuangong.yuangong_id_number as yuangongIdNumber
+        ,yuangong.yuangong_photo as yuangongPhoto
+        ,yuangong.yuangong_email as yuangongEmail
+        ,yuangong.jinyong_types as jinyongTypes
+
+        FROM wuzi_ruku  a
+        left JOIN wuzi wuzi ON a.wuzi_id = wuzi.id
+        left JOIN yuangong yuangong ON a.yuangong_id = yuangong.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yuangongId != null and params.yuangongId != ''">
+                and (
+                    a.yuangong_id = #{params.yuangongId}
+                )
+            </if>
+            <if test="params.wuziId != null and params.wuziId != ''">
+                and (
+                    a.wuzi_id = #{params.wuziId}
+                )
+            </if>
+            <if test=" params.wuziRukuUuidNumber != '' and params.wuziRukuUuidNumber != null and params.wuziRukuUuidNumber != 'null' ">
+                and a.wuzi_ruku_uuid_number like CONCAT('%',#{params.wuziRukuUuidNumber},'%')
+            </if>
+            <if test="params.wuziRukuNumberStart != null and params.wuziRukuNumberStart != ''">
+                <![CDATA[  and a.wuzi_ruku_number >= #{params.wuziRukuNumberStart}   ]]>
+            </if>
+            <if test="params.wuziRukuNumberEnd != null and params.wuziRukuNumberEnd != ''">
+                <![CDATA[  and a.wuzi_ruku_number <= #{params.wuziRukuNumberEnd}   ]]>
+            </if>
+             <if test="params.wuziRukuNumber != null and params.wuziRukuNumber != ''">
+                and a.wuzi_ruku_number = #{params.wuziRukuNumber}
+             </if>
+            <if test=" params.rukuTimeStart != '' and params.rukuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.ruku_time) >= UNIX_TIMESTAMP(#{params.rukuTimeStart}) ]]>
+            </if>
+            <if test=" params.rukuTimeEnd != '' and params.rukuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.ruku_time) <= UNIX_TIMESTAMP(#{params.rukuTimeEnd}) ]]>
+            </if>
+            <if test="params.rukuTime != null and params.rukuTime != ''">
+                and a.ruku_time = #{params.rukuTime}
+            </if>
+            <if test=" params.wuziRukuContent != '' and params.wuziRukuContent != null and params.wuziRukuContent != 'null' ">
+                and a.wuzi_ruku_content like CONCAT('%',#{params.wuziRukuContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+
+                <!-- 判断物资的id不为空 -->
+            <if test=" params.wuziIdNotNull != '' and params.wuziIdNotNull != null and params.wuziIdNotNull != 'null' ">
+                and a.wuzi_id IS NOT NULL
+            </if>
+            <if test=" params.wuziName != '' and params.wuziName != null and params.wuziName != 'null' ">
+                and wuzi.wuzi_name like CONCAT('%',#{params.wuziName},'%')
+            </if>
+            <if test=" params.wuziUuidNumber != '' and params.wuziUuidNumber != null and params.wuziUuidNumber != 'null' ">
+                and wuzi.wuzi_uuid_number like CONCAT('%',#{params.wuziUuidNumber},'%')
+            </if>
+            <if test=" params.wuziCangku != '' and params.wuziCangku != null and params.wuziCangku != 'null' ">
+                and wuzi.wuzi_cangku like CONCAT('%',#{params.wuziCangku},'%')
+            </if>
+            <if test=" params.wuziAddress != '' and params.wuziAddress != null and params.wuziAddress != 'null' ">
+                and wuzi.wuzi_address like CONCAT('%',#{params.wuziAddress},'%')
+            </if>
+            <if test="params.wuziTypes != null  and params.wuziTypes != ''">
+                and wuzi.wuzi_types = #{params.wuziTypes}
+            </if>
+
+            <if test="params.wuziKucunNumberStart != null  and params.wuziKucunNumberStart != '' ">
+                <![CDATA[  and wuzi.wuzi_kucun_number >= #{params.wuziKucunNumberStart}   ]]>
+            </if>
+            <if test="params.wuziKucunNumberEnd != null  and params.wuziKucunNumberEnd != '' ">
+                <![CDATA[  and wuzi.wuzi_kucun_number <= #{params.wuziKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.wuziKucunNumber != null  and params.wuziKucunNumber != '' ">
+                and wuzi.wuzi_kucun_number = #{params.wuziKucunNumber}
+            </if>
+            <if test="params.wuziClicknumStart != null  and params.wuziClicknumStart != '' ">
+                <![CDATA[  and wuzi.wuzi_clicknum >= #{params.wuziClicknumStart}   ]]>
+            </if>
+            <if test="params.wuziClicknumEnd != null  and params.wuziClicknumEnd != '' ">
+                <![CDATA[  and wuzi.wuzi_clicknum <= #{params.wuziClicknumEnd}   ]]>
+            </if>
+            <if test="params.wuziClicknum != null  and params.wuziClicknum != '' ">
+                and wuzi.wuzi_clicknum = #{params.wuziClicknum}
+            </if>
+            <if test=" params.wuziContent != '' and params.wuziContent != null and params.wuziContent != 'null' ">
+                and wuzi.wuzi_content like CONCAT('%',#{params.wuziContent},'%')
+            </if>
+            <if test="params.shangxiaTypes != null  and params.shangxiaTypes != ''">
+                and wuzi.shangxia_types = #{params.shangxiaTypes}
+            </if>
+
+            <if test="params.wuziDeleteStart != null  and params.wuziDeleteStart != '' ">
+                <![CDATA[  and wuzi.wuzi_delete >= #{params.wuziDeleteStart}   ]]>
+            </if>
+            <if test="params.wuziDeleteEnd != null  and params.wuziDeleteEnd != '' ">
+                <![CDATA[  and wuzi.wuzi_delete <= #{params.wuziDeleteEnd}   ]]>
+            </if>
+            <if test="params.wuziDelete != null  and params.wuziDelete != '' ">
+                and wuzi.wuzi_delete = #{params.wuziDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(wuzi.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(wuzi.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+                <!-- 判断员工的id不为空 -->
+            <if test=" params.yuangongIdNotNull != '' and params.yuangongIdNotNull != null and params.yuangongIdNotNull != 'null' ">
+                and a.yuangong_id IS NOT NULL
+            </if>
+            <if test=" params.yuangongUuidNumber != '' and params.yuangongUuidNumber != null and params.yuangongUuidNumber != 'null' ">
+                and yuangong.yuangong_uuid_number like CONCAT('%',#{params.yuangongUuidNumber},'%')
+            </if>
+            <if test=" params.yuangongName != '' and params.yuangongName != null and params.yuangongName != 'null' ">
+                and yuangong.yuangong_name like CONCAT('%',#{params.yuangongName},'%')
+            </if>
+            <if test=" params.yuangongPhone != '' and params.yuangongPhone != null and params.yuangongPhone != 'null' ">
+                and yuangong.yuangong_phone like CONCAT('%',#{params.yuangongPhone},'%')
+            </if>
+            <if test=" params.yuangongIdNumber != '' and params.yuangongIdNumber != null and params.yuangongIdNumber != 'null' ">
+                and yuangong.yuangong_id_number like CONCAT('%',#{params.yuangongIdNumber},'%')
+            </if>
+            <if test=" params.yuangongEmail != '' and params.yuangongEmail != null and params.yuangongEmail != 'null' ">
+                and yuangong.yuangong_email like CONCAT('%',#{params.yuangongEmail},'%')
+            </if>
+            <if test="params.jinyongTypes != null  and params.jinyongTypes != ''">
+                and yuangong.jinyong_types = #{params.jinyongTypes}
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
